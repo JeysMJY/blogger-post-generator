@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Generator - Movie Streaming</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f7f6; padding: 40px 0; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .episode-card { background: #fff; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .download-row { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 5px; }
+        #finalCode { font-family: 'Courier New', monospace; font-size: 12px; height: 300px; }
+        .btn-remove { color: red; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="card p-4 mb-4">
+                <h4 class="mb-4">🎬 Movie Info</h4>
+                <div class="row g-3">
+                    <div class="col-md-12"><label>Judul</label><input type="text" id="m_title" class="form-control" placeholder="Tinggal Meninggal"></div>
+                    <div class="col-md-6"><label>Poster URL</label><input type="text" id="m_poster" class="form-control" placeholder="https://image...jpg"></div>
+                    <div class="col-md-6"><label>Banner URL</label><input type="text" id="m_banner" class="form-control" placeholder="https://image...jpg"></div>
+                    <div class="col-md-4"><label>Rating</label><input type="text" id="m_rating" class="form-control" placeholder="8 / 10"></div>
+                    <div class="col-md-4"><label>Tahun</label><input type="text" id="m_year" class="form-control" placeholder="2025"></div>
+                    <div class="col-md-4"><label>Negara</label><input type="text" id="m_country" class="form-control" placeholder="Indonesia"></div>
+                    <div class="col-md-12"><label>Genre</label><input type="text" id="m_genre" class="form-control" placeholder="Comedy, Drama"></div>
+                    <div class="col-md-12"><label>Pemeran</label><input type="text" id="m_cast" class="form-control" placeholder="Nama Artis, Nama Artis..."></div>
+                    <div class="col-md-12"><label>Sinopsis</label><textarea id="m_synopsis" class="form-control" rows="3"></textarea></div>
+                </div>
+            </div>
+
+            <div class="card p-4">
+                <div class="d-flex justify-content-between mb-4">
+                    <h4>📺 Daftar Episode / Server</h4>
+                    <button class="btn btn-primary btn-sm" onclick="addEpisode()">+ Tambah Episode</button>
+                </div>
+                <div id="episodeContainer"></div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="sticky-top" style="top: 20px;">
+                <button class="btn btn-success btn-lg w-100 mb-3" onclick="generateCode()">GENERATE KODE POSTINGAN 🚀</button>
+                <textarea id="finalCode" class="form-control" readonly placeholder="Hasil kode akan muncul di sini..."></textarea>
+                <button class="btn btn-outline-secondary btn-sm w-100 mt-2" onclick="copyCode()">Salin Kode</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let epCount = 0;
+
+    function addEpisode() {
+        epCount++;
+        const div = document.createElement('div');
+        div.className = 'episode-card';
+        div.id = `ep-block-${epCount}`;
+        div.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>Episode / Server #${epCount}</strong>
+                <span class="btn-remove" onclick="this.parentElement.parentElement.remove()">Hapus</span>
+            </div>
+            <input type="text" class="form-control mb-2 ep-name" placeholder="Nama Episode (Contoh: EP 01 atau TRAILER)">
+            <input type="text" class="form-control mb-2 ep-video" placeholder="Link Iframe Video (Direct/Drive/YT)">
+            <div class="dl-container">
+                <div class="small fw-bold mb-1">Link Download:</div>
+            </div>
+            <button class="btn btn-sm btn-outline-info mt-2" onclick="addDownload(this)">+ Tambah Link Download</button>
+        `;
+        document.getElementById('episodeContainer').appendChild(div);
+    }
+
+    function addDownload(btn) {
+        const container = btn.previousElementSibling;
+        const row = document.createElement('div');
+        row.className = 'row g-2 download-row';
+        row.innerHTML = `
+            <div class="col-5"><input type="text" class="form-control form-control-sm dl-label" placeholder="Label (GD 1080p)"></div>
+            <div class="col-6"><input type="text" class="form-control form-control-sm dl-link" placeholder="URL Download"></div>
+            <div class="col-1 text-end"><span class="btn-remove" onclick="this.parentElement.parentElement.remove()">×</span></div>
+        `;
+        container.appendChild(row);
+    }
+
+    function generateCode() {
+        const data = {
+            title: document.getElementById('m_title').value,
+            poster: document.getElementById('m_poster').value,
+            banner: document.getElementById('m_banner').value,
+            rating: document.getElementById('m_rating').value,
+            year: document.getElementById('m_year').value,
+            country: document.getElementById('m_country').value,
+            genre: document.getElementById('m_genre').value,
+            cast: document.getElementById('m_cast').value,
+            synopsis: document.getElementById('m_synopsis').value,
+        };
+
+        let eps = [];
+        document.querySelectorAll('.episode-card').forEach(card => {
+            let downloads = [];
+            card.querySelectorAll('.download-row').forEach(dlRow => {
+                downloads.push({
+                    label: dlRow.querySelector('.dl-label').value,
+                    link: dlRow.querySelector('.dl-link').value
+                });
+            });
+            eps.push({
+                name: card.querySelector('.ep-name').value,
+                video: card.querySelector('.ep-video').value,
+                downloads: downloads
+            });
+        });
+
+        const code = `<style>
+  .post-top-wrapper { display: flex; flex-direction: column-reverse; }
+  .post-header-info { margin-top: -120px; }
+  @media (max-width: 992px) { .post-header-info { margin-top: -50px; } }
+  .episode-item.active { background: #ffc107; color: #000; }
+</style>
+
+<div class="post-top-wrapper">
+   <div class="post-header-info">
+      <div class="post-info-grid">
+         <div class="poster-side">
+            <img class="post-poster" src="${data.poster}" alt="Poster" />
+         </div>
+         <div class="info-side">
+            <h2 class="fw-bold mb-3 text-main">${data.title}</h2>
+            <ul class="info-list">
+               <li><b>Rating</b> <span class="val">${data.rating}</span></li>
+               <li><b>Tahun</b> <span class="val">${data.year}</span></li>
+               <li><b>Negara</b> <span class="val">${data.country}</span></li>
+               <li><b>Genre</b> <span class="val">${data.genre}</span></li>
+               <li><b>Pemeran</b> <span class="val">${data.cast}</span></li>
+            </ul>
+            <div class="synopsis-wrapper">
+               <h6 class="text-info fw-bold small text-uppercase mb-2">Sinopsis</h6>
+               <p class="text-dim small" style="line-height:1.6; text-align:justify;">${data.synopsis}</p>
+            </div>
+         </div>
+      </div>
+   </div>
+   <img class="post-banner" src="${data.banner}" alt="Banner" />
+</div>
+
+<div class="video-container">
+   <iframe id="videoPlayer" src="${eps[0]?.video || ''}" allowfullscreen="true"></iframe>
+</div>
+
+<div class="download-section">
+   <h5 class="fw-bold mb-3 text-main"><i class="fa fa-download me-2"></i> LINK DOWNLOAD <span id="epTitle">(${eps[0]?.name || ''})</span></h5>
+   <div class="mb-3">
+      <div id="dlButtons" class="d-flex flex-wrap gap-2"></div>
+      <p id="noDownload" class="text-secondary small" style="display:none;">Link download tidak tersedia</p>
+   </div>
+  <h6 class="small fw-bold text-secondary mt-4">Navigasi:</h6>
+  <div id="episodeList" class="episode-list"></div>
+</div>
+
+<script>
+const episodes = ${JSON.stringify(eps, null, 2)};
+
+function renderEpisodes() {
+    const container = document.getElementById('episodeList');
+    container.innerHTML = ''; 
+    const hashIndex = window.location.hash ? parseInt(window.location.hash.replace('#', '')) : 0;
+    const startIndex = (hashIndex >= 0 && hashIndex < episodes.length) ? hashIndex : 0;
+
+    episodes.forEach((ep, index) => {
+        const btn = document.createElement('a');
+        btn.href = "#" + index;
+        btn.className = "episode-item";
+        btn.innerText = ep.name;
+        if (index === startIndex) btn.classList.add('active');
+        btn.onclick = () => setActiveEpisode(index, btn);
+        container.appendChild(btn);
+    });
+
+    setTimeout(() => {
+        const activeBtn = document.querySelectorAll('.episode-item')[startIndex];
+        setActiveEpisode(startIndex, activeBtn);
+    }, 100);
+}
+
+function setActiveEpisode(index, element) {
+    if(!element) return;
+    const data = episodes[index];
+    window.location.hash = index;
+    document.getElementById('videoPlayer').src = data.video;
+    document.getElementById('epTitle').innerText = "(" + data.name + ")";
+    
+    const dlBox = document.getElementById('dlButtons');
+    const noDlText = document.getElementById('noDownload');
+    dlBox.innerHTML = ''; 
+
+    if (!data.downloads || data.downloads.length === 0) {
+        dlBox.style.display = 'none';
+        noDlText.style.display = 'block';
+    } else {
+        dlBox.style.display = 'flex';
+        noDlText.style.display = 'none';
+        data.downloads.forEach(dl => {
+            const a = document.createElement('a');
+            a.href = dl.link;
+            a.target = "_blank";
+            a.className = "btn-download";
+            a.innerHTML = \`<i class="fa fa-film me-2"></i> \${dl.label}\`;
+            dlBox.appendChild(a);
+        });
+    }
+    let allButtons = document.querySelectorAll('.episode-item');
+    allButtons.forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+}
+renderEpisodes();
+<\/script>`;
+
+        document.getElementById('finalCode').value = code;
+    }
+
+    function copyCode() {
+        const copyText = document.getElementById("finalCode");
+        copyText.select();
+        document.execCommand("copy");
+        alert("Kode berhasil disalin!");
+    }
+
+    // Load first empty episode
+    addEpisode();
+</script>
+</body>
+</html>
