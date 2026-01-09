@@ -77,13 +77,27 @@
                 </div>
             </div>
 
-            <div class="card p-4">
+            <div class="card p-4 mb-4">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h4 class="section-title mb-0"><i class="fa fa-list-ol me-2"></i> EPISODE / SERVER</h4>
                     <button class="btn btn-primary btn-sm" onclick="addEpisode()"><i class="fa fa-plus me-1"></i> Tambah</button>
                 </div>
                 <div id="episodeContainer"></div>
             </div>
+			
+			<div class="card p-4 drive-tool">
+                <h4 class="section-title" style="border-left-color: #2e7d32;"><i class="fab fa-google-drive me-2"></i> DRIVE TO DIRECT LINK</h4>
+                <p class="small text-muted">Ubah link Google Drive menjadi link download langsung secara instan.</p>
+                <div class="input-group mb-2">
+                    <input type="text" id="driveInput" class="form-control" placeholder="Tempel link Google Drive di sini...">
+                    <button class="btn btn-success" onclick="convertDriveLink()">Konversi</button>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="driveOutput" class="form-control bg-white" readonly placeholder="Hasil link direct...">
+                    <button class="btn btn-outline-success" onclick="copyDriveLink()"><i class="fa fa-copy"></i></button>
+                </div>
+            </div>
+			
         </div>
 
         <div class="col-lg-5">
@@ -105,6 +119,24 @@
 
 <script>
     let epCount = 0;
+	
+		// --- DRIVE LINK CONVERTER ---
+    function convertDriveLink() {
+        const input = document.getElementById('driveInput').value.trim();
+        if (!input) return alert("Masukkan link drive!");
+        
+        // Regex untuk mengambil ID File
+        const regex = /\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)/;
+        const match = input.match(regex);
+        
+        if (match) {
+            const fileId = match[1] || match[2];
+            const directLink = `https://docs.google.com/uc?export=download&id=${fileId}`;
+            document.getElementById('driveOutput').value = directLink;
+        } else {
+            alert("Link Google Drive tidak valid! Pastikan link mengandung ID file.");
+        }
+    }
 
     function showPreview(input, previewId) {
         const container = document.getElementById(previewId);
