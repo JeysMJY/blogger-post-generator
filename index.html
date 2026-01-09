@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Post Generator - Movie Streaming (V3 Responsive)</title>
+    <title>Post Generator - Movie Streaming (V3 + Live Preview)</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -15,11 +15,17 @@
         .btn-remove { color: #dc3545; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .btn-remove:hover { color: #a71d2a; }
         .section-title { border-left: 5px solid #0d6efd; padding-left: 15px; margin-bottom: 25px; font-weight: 700; color: #333; }
+        
+        /* Preview Styles */
         .preview-container { margin-top: 10px; position: relative; display: none; }
         .preview-container img { border-radius: 8px; border: 2px solid #ddd; object-fit: cover; background: #eee; }
         .poster-prev { width: 100px; height: 150px; }
         .banner-prev { width: 100%; height: 150px; }
+        .video-prev-container { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 8px; overflow: hidden; margin-top: 10px; display: none; }
+        .video-prev-container iframe { width: 100%; height: 100%; border: none; }
+        
         .sticky-code { position: sticky; top: 20px; }
+        .drive-tool { background: #e8f5e9; border: 1px solid #c8e6c9; }
         @media (max-width: 991px) { .sticky-code { position: relative; top: 0; margin-top: 30px; } }
     </style>
 </head>
@@ -46,7 +52,7 @@
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label small fw-bold">Judul Film / Series</label>
-                        <input type="text" id="m_title" class="form-control" placeholder="Contoh: Tinggal Meninggal">
+                        <input type="text" id="m_title" class="form-control" placeholder="Contoh: Cashero">
                     </div>
                     
                     <div class="col-md-6">
@@ -68,10 +74,10 @@
                     </div>
 
                     <div class="col-md-4 col-6"><label class="form-label small fw-bold">Rating</label><input type="text" id="m_rating" class="form-control" placeholder="8.5"></div>
-                    <div class="col-md-4 col-6"><label class="form-label small fw-bold">Tahun</label><input type="text" id="m_year" class="form-control" placeholder="2024"></div>
-                    <div class="col-md-4 col-12"><label class="form-label small fw-bold">Negara</label><input type="text" id="m_country" class="form-control" placeholder="Indonesia"></div>
+                    <div class="col-md-4 col-6"><label class="form-label small fw-bold">Tahun</label><input type="text" id="m_year" class="form-control" placeholder="2025"></div>
+                    <div class="col-md-4 col-12"><label class="form-label small fw-bold">Negara</label><input type="text" id="m_country" class="form-control" placeholder="Korea"></div>
                     
-                    <div class="col-12"><label class="form-label small fw-bold">Genre</label><input type="text" id="m_genre" class="form-control" placeholder="Drama, Komedi"></div>
+                    <div class="col-12"><label class="form-label small fw-bold">Genre</label><input type="text" id="m_genre" class="form-control" placeholder="Drama, Action"></div>
                     <div class="col-12"><label class="form-label small fw-bold">Pemeran</label><input type="text" id="m_cast" class="form-control" placeholder="Nama Artis, Nama Artis"></div>
                     <div class="col-12"><label class="form-label small fw-bold">Sinopsis</label><textarea id="m_synopsis" class="form-control" rows="3"></textarea></div>
                 </div>
@@ -84,12 +90,24 @@
                 </div>
                 <div id="episodeContainer"></div>
             </div>
-			
-			<div class="card p-4 drive-tool">
+        </div>
+
+        <div class="col-lg-5">
+            <div class="sticky-code">
+                <button class="btn btn-success btn-lg w-100 mb-3" onclick="generateCode()">
+                    <i class="fa fa-code me-2"></i>GENERATE KODE POST
+                </button>
+                <div class="position-relative">
+                    <textarea id="finalCode" class="form-control" readonly placeholder="Kode HTML muncul di sini..."></textarea>
+                    <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2" onclick="copyCode()">
+                        <i class="fa fa-copy"></i> Salin
+                    </button>
+                </div>
+                <p class="text-muted small mt-2 text-center">Gunakan mode <b>HTML View</b> di postingan Blogger.</p>
+				<div class="position-relative card p-4 drive-tool">
                 <h4 class="section-title" style="border-left-color: #2e7d32;"><i class="fab fa-google-drive me-2"></i> DRIVE TO DIRECT LINK</h4>
-                <p class="small text-muted">Ubah link Google Drive menjadi link download langsung secara instan.</p>
                 <div class="input-group mb-2">
-                    <input type="text" id="driveInput" class="form-control" placeholder="Tempel link Google Drive di sini...">
+                    <input type="text" id="driveInput" class="form-control" placeholder="Tempel link Google Drive...">
                     <button class="btn btn-success" onclick="convertDriveLink()">Konversi</button>
                 </div>
                 <div class="input-group">
@@ -97,21 +115,6 @@
                     <button class="btn btn-outline-success" onclick="copyDriveLink()"><i class="fa fa-copy"></i></button>
                 </div>
             </div>
-			
-        </div>
-
-        <div class="col-lg-5">
-            <div class="sticky-code">
-                <button class="btn btn-success btn-lg w-100 mb-3" onclick="generateCode()">
-                    <i class="fa fa-code me-2"></i>GENERATE KODE
-                </button>
-                <div class="position-relative">
-                    <textarea id="finalCode" class="form-control" readonly placeholder="Kode HTML akan muncul di sini..."></textarea>
-                    <button class="btn btn-light btn-sm position-absolute top-0 end-0 m-2" onclick="copyCode()">
-                        <i class="fa fa-copy"></i> Salin
-                    </button>
-                </div>
-                <p class="text-muted small mt-2"><i class="fa fa-info-circle me-1"></i> Salin kode di atas dan tempel di mode <b>HTML View</b> postingan Blogger.</p>
             </div>
         </div>
     </div>
@@ -119,25 +122,8 @@
 
 <script>
     let epCount = 0;
-	
-		// --- DRIVE LINK CONVERTER ---
-    function convertDriveLink() {
-        const input = document.getElementById('driveInput').value.trim();
-        if (!input) return alert("Masukkan link drive!");
-        
-        // Regex untuk mengambil ID File
-        const regex = /\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)/;
-        const match = input.match(regex);
-        
-        if (match) {
-            const fileId = match[1] || match[2];
-            const directLink = `https://docs.google.com/uc?export=download&id=${fileId}`;
-            document.getElementById('driveOutput').value = directLink;
-        } else {
-            alert("Link Google Drive tidak valid! Pastikan link mengandung ID file.");
-        }
-    }
 
+    // --- LIVE PREVIEW FUNCTIONS ---
     function showPreview(input, previewId) {
         const container = document.getElementById(previewId);
         const img = container.querySelector('img');
@@ -149,42 +135,65 @@
         }
     }
 
-    function resetForm() {
-        if(confirm("Hapus semua data yang sudah diisi?")) {
-            document.querySelectorAll('input, textarea').forEach(el => el.value = '');
-            document.getElementById('episodeContainer').innerHTML = '';
-            document.querySelectorAll('.preview-container').forEach(el => el.style.display = 'none');
-            epCount = 0;
-            addEpisode();
-            window.scrollTo(0,0);
+    function showVideoPreview(input, previewId) {
+        const container = document.getElementById(previewId);
+        const iframe = container.querySelector('iframe');
+        const url = input.value.trim();
+        
+        if (url !== "") {
+            iframe.src = url;
+            container.style.display = "block";
+        } else {
+            iframe.src = "";
+            container.style.display = "none";
         }
     }
 
+    // --- DRIVE CONVERTER ---
+    function convertDriveLink() {
+        const input = document.getElementById('driveInput').value.trim();
+        const regex = /\/d\/([a-zA-Z0-9_-]+)|id=([a-zA-Z0-9_-]+)/;
+        const match = input.match(regex);
+        if (match) {
+            const id = match[1] || match[2];
+            document.getElementById('driveOutput').value = `https://docs.google.com/uc?export=download&id=${id}`;
+        } else { alert("Link tidak valid!"); }
+    }
+
+    function copyDriveLink() {
+        const el = document.getElementById('driveOutput');
+        el.select(); document.execCommand('copy'); alert("Disalin!");
+    }
+
+    // --- EPISODE LOGIC ---
     function addEpisode(data = null) {
         epCount++;
         const div = document.createElement('div');
         div.className = 'episode-card';
-        div.id = `ep-block-${epCount}`;
+        const vId = `video_p_${epCount}`;
+        
         div.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="badge bg-primary">Item #${epCount}</span>
                 <span class="btn-remove small" onclick="this.parentElement.parentElement.remove()"><i class="fa fa-times"></i> Hapus</span>
             </div>
             <div class="row g-2">
-                <div class="col-md-4"><input type="text" class="form-control form-control-sm ep-name" placeholder="Judul (EP 01 / Trailer)" value="${data ? data.name : ''}"></div>
-                <div class="col-md-8"><input type="text" class="form-control form-control-sm ep-video" placeholder="Link Iframe / Video Preview" value="${data ? data.video : ''}"></div>
+                <div class="col-md-4"><input type="text" class="form-control form-control-sm ep-name" placeholder="EP 01" value="${data ? data.name : ''}"></div>
+                <div class="col-md-8"><input type="text" class="form-control form-control-sm ep-video" placeholder="Link Iframe/Video" value="${data ? data.video : ''}" oninput="showVideoPreview(this, '${vId}')"></div>
             </div>
-            <div class="dl-container mt-3">
-                <div class="small fw-bold mb-2 text-secondary"><i class="fa fa-link me-1"></i> Link Download:</div>
+            <div id="${vId}" class="video-prev-container">
+                <iframe src="${data ? data.video : ''}" allowfullscreen></iframe>
             </div>
-            <button class="btn btn-sm btn-outline-secondary w-100 border-dashed" onclick="addDownload(this)"><i class="fa fa-plus-circle me-1"></i> Tambah Link Download</button>
+            <div class="dl-container mt-3"></div>
+            <button class="btn btn-sm btn-outline-secondary w-100" onclick="addDownload(this)">+ Tambah Link Download</button>
         `;
         document.getElementById('episodeContainer').appendChild(div);
-
         if (data && data.downloads) {
             const btn = div.querySelector('button');
             data.downloads.forEach(dl => addDownload(btn, dl));
         }
+        // Munculkan preview jika ada data
+        if(data && data.video) showVideoPreview(div.querySelector('.ep-video'), vId);
     }
 
     function addDownload(btn, dlData = null) {
@@ -192,50 +201,14 @@
         const row = document.createElement('div');
         row.className = 'row g-2 download-row';
         row.innerHTML = `
-            <div class="col-5"><input type="text" class="form-control form-control-sm dl-label" placeholder="Label (ex: 1080p)" value="${dlData ? dlData.label : ''}"></div>
-            <div class="col-6"><input type="text" class="form-control form-control-sm dl-link" placeholder="URL Download" value="${dlData ? dlData.link : ''}"></div>
-            <div class="col-1 d-flex align-items-center justify-content-center"><span class="btn-remove" onclick="this.parentElement.parentElement.remove()">×</span></div>
+            <div class="col-5"><input type="text" class="form-control form-control-sm dl-label" placeholder="1080p" value="${dlData ? dlData.label : ''}"></div>
+            <div class="col-6"><input type="text" class="form-control form-control-sm dl-link" placeholder="Link Download" value="${dlData ? dlData.link : ''}"></div>
+            <div class="col-1 d-flex align-items-center"><span class="btn-remove" onclick="this.parentElement.parentElement.remove()">×</span></div>
         `;
         container.appendChild(row);
     }
 
-    function importData() {
-        const rawCode = document.getElementById('importCodeArea').value;
-        if (!rawCode) return alert("Tempelkan kode terlebih dahulu!");
-
-        try {
-            const epMatch = rawCode.match(/const episodes = (\[[\s\S]*?\]);/);
-            if (!epMatch) throw new Error("Format tidak valid.");
-            const parsedEps = JSON.parse(epMatch[1]);
-
-            const extract = (regex) => {
-                const m = rawCode.match(regex);
-                return m ? m[1] : '';
-            };
-
-            document.getElementById('m_title').value = extract(/<h2.*?>(.*?)<\/h2>/);
-            document.getElementById('m_poster').value = extract(/class="post-poster" src="(.*?)"/);
-            document.getElementById('m_banner').value = extract(/class="post-banner" src="(.*?)"/);
-            document.getElementById('m_rating').value = extract(/<b>Rating<\/b> <span class="val">(.*?)<\/span>/).replace(' / 10', '');
-            document.getElementById('m_year').value = extract(/<b>Tahun<\/b> <span class="val">(.*?)<\/span>/);
-            document.getElementById('m_country').value = extract(/<b>Negara<\/b> <span class="val">(.*?)<\/span>/);
-            document.getElementById('m_genre').value = extract(/<b>Genre<\/b> <span class="val">(.*?)<\/span>/);
-            document.getElementById('m_cast').value = extract(/<b>Pemeran<\/b> <span class="val">(.*?)<\/span>/);
-            document.getElementById('m_synopsis').value = extract(/<p class="text-dim small".*?>(.*?)<\/p>/);
-
-            showPreview(document.getElementById('m_poster'), 'poster_p');
-            showPreview(document.getElementById('m_banner'), 'banner_p');
-
-            document.getElementById('episodeContainer').innerHTML = '';
-            epCount = 0;
-            parsedEps.forEach(ep => addEpisode(ep));
-
-            alert("Data berhasil dimuat!");
-        } catch (e) {
-            alert("Gagal import. Pastikan kode yang ditempel adalah kode hasil generate sebelumnya.");
-        }
-    }
-
+    // --- GENERATE & IMPORT ---
     function generateCode() {
         const data = {
             title: document.getElementById('m_title').value,
@@ -251,135 +224,77 @@
 
         let eps = [];
         document.querySelectorAll('.episode-card').forEach(card => {
-            let downloads = [];
-            card.querySelectorAll('.download-row').forEach(dlRow => {
-                const label = dlRow.querySelector('.dl-label').value;
-                const link = dlRow.querySelector('.dl-link').value;
-                if(label && link) downloads.push({ label, link });
+            let dls = [];
+            card.querySelectorAll('.download-row').forEach(row => {
+                const l = row.querySelector('.dl-label').value;
+                const link = row.querySelector('.dl-link').value;
+                if(l && link) dls.push({ "label": l, "link": link });
             });
-            eps.push({
-                name: card.querySelector('.ep-name').value || 'Episode',
-                video: card.querySelector('.ep-video').value,
-                downloads: downloads
-            });
+            eps.push({ "name": card.querySelector('.ep-name').value, "video": card.querySelector('.ep-video').value, "downloads": dls });
         });
 
-        const code = `<style>
-  .post-top-wrapper { display: flex; flex-direction: column-reverse; }
-  .post-header-info { margin-top: -120px; }
-  @media (max-width: 992px) { .post-header-info { margin-top: -50px; } }
-  .episode-item.active { background: var(--accent); color: #000; font-weight: bold; }
-  .btn-download { display: inline-flex; align-items: center; padding: 8px 16px; background: #333; color: #fff; border-radius: 4px; text-decoration: none; font-size: 13px; transition: 0.3s; }
-  .btn-download:hover { background: #000; color: var(--accent); }
-</style>
-
+        const code = `<style>.post-top-wrapper{display:flex;flex-direction:column-reverse}.post-header-info{margin-top:-120px}@media(max-width:992px){.post-header-info{margin-top:-50px}}.episode-item.active{background: var(--accent);color:#000;font-weight:700}</style>
 <div class="post-top-wrapper">
-   <div class="post-header-info">
-      <div class="post-info-grid">
-         <div class="poster-side">
-            <img class="post-poster" src="${data.poster}" alt="Poster" />
-         </div>
-         <div class="info-side">
-            <h2 class="fw-bold mb-3 text-main">${data.title}</h2>
-            <ul class="info-list">
-               <li><b>Rating</b> <span class="val">${data.rating} / 10</span></li>
-               <li><b>Tahun</b> <span class="val">${data.year}</span></li>
-               <li><b>Negara</b> <span class="val">${data.country}</span></li>
-               <li><b>Genre</b> <span class="val">${data.genre}</span></li>
-               <li><b>Pemeran</b> <span class="val">${data.cast}</span></li>
-            </ul>
-            <div class="synopsis-wrapper">
-               <h6 class="text-info fw-bold small text-uppercase mb-2">Sinopsis</h6>
-               <p class="text-dim small" style="line-height:1.6; text-align:justify;">${data.synopsis}</p>
-            </div>
-         </div>
-      </div>
-   </div>
-   <img class="post-banner" src="${data.banner}" alt="Banner" />
+<div class="post-header-info">
+<div class="post-info-grid">
+<div class="poster-side"><img class="post-poster" src="${data.poster}"/></div>
+<div class="info-side">
+<h2 class="fw-bold mb-3 text-main">${data.title}</h2>
+<ul class="info-list">
+<li><b>Rating</b> <span class="val">${data.rating} / 10</span></li>
+<li><b>Tahun</b> <span class="val">${data.year}</span></li>
+<li><b>Negara</b> <span class="val">${data.country}</span></li>
+<li><b>Genre</b> <span class="val">${data.genre}</span></li>
+<li><b>Pemeran</b> <span class="val">${data.cast}</span></li>
+</ul>
+<div class="synopsis-wrapper">
+<h6 class="text-info fw-bold small text-uppercase mb-2">Sinopsis</h6>
+<p class="text-dim small" style="line-height:1.6;text-align:justify">${data.synopsis}</p>
+</div></div></div></div>
+<img class="post-banner" src="${data.banner}"/>
 </div>
-
-<div class="video-container">
-   <iframe id="videoPlayer" src="${eps[0]?.video || ''}" allowfullscreen="true"></iframe>
-</div>
-
+<div class="video-container"><iframe id="videoPlayer" src="${eps[0]?.video}" allowfullscreen></iframe></div>
 <div class="download-section">
-   <h5 class="fw-bold mb-3 text-main"><i class="fa fa-download me-2"></i> LINK DOWNLOAD <span id="epTitle">(${eps[0]?.name || ''})</span></h5>
-   <div class="mb-3">
-      <div id="dlButtons" class="d-flex flex-wrap gap-2"></div>
-      <p id="noDownload" class="text-secondary small" style="display:none;">Link download tidak tersedia</p>
-   </div>
-  <h6 class="small fw-bold text-secondary mt-4">Pilih Episode / Server:</h6>
-  <div id="episodeList" class="episode-list"></div>
+<h5 class="fw-bold mb-3 text-main"><i class="fa fa-download me-2"></i>LINK DOWNLOAD <span id="epTitle">(${eps[0]?.name})</span></h5>
+<div id="dlButtons" class="d-flex flex-wrap gap-2"></div>
+<p id="noDownload" class="text-secondary small" style="display:none">Link tidak tersedia</p>
+<h6 class="small fw-bold text-secondary mt-4">Pilih Episode:</h6>
+<div id="episodeList" class="episode-list"></div>
 </div>
-
 <script>
 const episodes = ${JSON.stringify(eps, null, 2)};
-
-function renderEpisodes() {
-    const container = document.getElementById('episodeList');
-    container.innerHTML = ''; 
-    const hashIndex = window.location.hash ? parseInt(window.location.hash.replace('#ep', '')) : 0;
-    const startIndex = (hashIndex >= 0 && hashIndex < episodes.length) ? hashIndex : 0;
-
-    episodes.forEach((ep, index) => {
-        const btn = document.createElement('a');
-        btn.href = "#ep" + index;
-        btn.className = "episode-item";
-        btn.innerText = ep.name;
-        if (index === startIndex) btn.classList.add('active');
-        btn.onclick = (e) => {
-            e.preventDefault();
-            setActiveEpisode(index, btn);
-        };
-        container.appendChild(btn);
-    });
-
-    setActiveEpisode(startIndex, document.querySelectorAll('.episode-item')[startIndex]);
-}
-
-function setActiveEpisode(index, element) {
-    if(!element) return;
-    const data = episodes[index];
-    window.location.hash = "ep" + index;
-    document.getElementById('videoPlayer').src = data.video;
-    document.getElementById('epTitle').innerText = "(" + data.name + ")";
-    
-    const dlBox = document.getElementById('dlButtons');
-    const noDlText = document.getElementById('noDownload');
-    dlBox.innerHTML = ''; 
-
-    if (!data.downloads || data.downloads.length === 0) {
-        dlBox.style.display = 'none';
-        noDlText.style.display = 'block';
-    } else {
-        dlBox.style.display = 'flex';
-        noDlText.style.display = 'none';
-        data.downloads.forEach(dl => {
-            const a = document.createElement('a');
-            a.href = dl.link;
-            a.target = "_blank";
-            a.className = "btn-download";
-            a.innerHTML = \`<i class="fa fa-download me-2"></i> \${dl.label}\`;
-            dlBox.appendChild(a);
-        });
-    }
-    document.querySelectorAll('.episode-item').forEach(btn => btn.classList.remove('active'));
-    element.classList.add('active');
-}
+function renderEpisodes(){const e=document.getElementById("episodeList");e.innerHTML="";const t=window.location.hash?parseInt(window.location.hash.replace("#ep","")):0;const s=t>=0&&t<episodes.length?t:0;episodes.forEach((t,n)=>{const a=document.createElement("a");a.href="#ep"+n,a.className="episode-item",a.innerText=t.name,n===s&&a.classList.add("active"),a.onclick=e=>{e.preventDefault(),setActiveEpisode(n,a)},e.appendChild(a)}),setActiveEpisode(s,document.querySelectorAll(".episode-item")[s])}
+function setActiveEpisode(e,t){if(!t)return;const s=episodes[e];window.location.hash="ep"+e,document.getElementById("videoPlayer").src=s.video,document.getElementById("epTitle").innerText="("+s.name+")";const n=document.getElementById("dlButtons"),a=document.getElementById("noDownload");n.innerHTML="",s.downloads&&0!==s.downloads.length?(n.style.display="flex",a.style.display="none",s.downloads.forEach(e=>{const t=document.createElement("a");t.href=e.link,t.target="_blank",t.className="btn-download",t.innerHTML='<i class="fa fa-download me-2"></i> '+e.label,n.appendChild(t)})):(n.style.display="none",a.style.display="block"),document.querySelectorAll(".episode-item").forEach(e=>e.classList.remove("active")),t.classList.add("active")}
 renderEpisodes();
 <\/script>`;
-
         document.getElementById('finalCode').value = code;
-        alert("Kode berhasil di-generate!");
+        alert("Selesai!");
     }
 
-    function copyCode() {
-        const copyText = document.getElementById("finalCode");
-        copyText.select();
-        document.execCommand("copy");
-        alert("Kode disalin!");
+    function importData() {
+        const raw = document.getElementById('importCodeArea').value;
+        try {
+            const eps = JSON.parse(raw.match(/const episodes = (\[[\s\S]*?\]);/)[1]);
+            const ex = (r) => (raw.match(r) || [])[1] || '';
+            document.getElementById('m_title').value = ex(/<h2.*?>(.*?)<\/h2>/);
+            document.getElementById('m_poster').value = ex(/class="post-poster" src="(.*?)"/);
+            document.getElementById('m_banner').value = ex(/class="post-banner" src="(.*?)"/);
+            document.getElementById('m_rating').value = ex(/<b>Rating<\/b> <span class="val">(.*?)<\/span>/).replace(' / 10', '');
+            document.getElementById('m_year').value = ex(/<b>Tahun<\/b> <span class="val">(.*?)<\/span>/);
+            document.getElementById('m_country').value = ex(/<b>Negara<\/b> <span class="val">(.*?)<\/span>/);
+            document.getElementById('m_genre').value = ex(/<b>Genre<\/b> <span class="val">(.*?)<\/span>/);
+            document.getElementById('m_cast').value = ex(/<b>Pemeran<\/b> <span class="val">(.*?)<\/span>/);
+            document.getElementById('m_synopsis').value = ex(/<p class="text-dim small".*?>(.*?)<\/p>/);
+            document.getElementById('episodeContainer').innerHTML = ''; epCount = 0;
+            eps.forEach(e => addEpisode(e));
+            showPreview(document.getElementById('m_poster'), 'poster_p');
+            showPreview(document.getElementById('m_banner'), 'banner_p');
+            alert("Data dimuat!");
+        } catch (e) { alert("Gagal!"); }
     }
 
+    function resetForm() { if(confirm("Reset?")) location.reload(); }
+    function copyCode() { const c = document.getElementById("finalCode"); c.select(); document.execCommand("copy"); alert("Salin!"); }
     addEpisode();
 </script>
 </body>
