@@ -78,7 +78,7 @@
                     <div class="col-md-4 col-12"><label class="form-label small fw-bold">Negara</label><input type="text" id="m_country" class="form-control" placeholder="Korea"></div>
                     
                     <div class="col-12"><label class="form-label small fw-bold">Genre</label><input type="text" id="m_genre" class="form-control" placeholder="Drama, Action"></div>
-                    <div class="col-12"><label class="form-label small fw-bold">Pemeran</label><input type="text" id="m_cast" class="form-control" placeholder="Nama Artis, Nama Artis"></div>
+                    <div class="col-12"><label class="form-label small fw-bold">Sutradara</label><input type="text" id="m_director" class="form-control" placeholder="Nama Sutradara"></div>
                     <div class="col-12"><label class="form-label small fw-bold">Sinopsis</label><textarea id="m_synopsis" class="form-control" rows="3"></textarea></div>
                 </div>
             </div>
@@ -218,7 +218,7 @@
             year: document.getElementById('m_year').value,
             country: document.getElementById('m_country').value,
             genre: document.getElementById('m_genre').value,
-            cast: document.getElementById('m_cast').value,
+            director: document.getElementById('m_director').value,
             synopsis: document.getElementById('m_synopsis').value,
         };
 
@@ -245,7 +245,7 @@
 <li><b>Tahun</b> <span class="val">${data.year}</span></li>
 <li><b>Negara</b> <span class="val">${data.country}</span></li>
 <li><b>Genre</b> <span class="val">${data.genre}</span></li>
-<li><b>Pemeran</b> <span class="val">${data.cast}</span></li>
+<li><b>Sutradara</b> <span class="val">${data.director}</span></li>
 </ul>
 <div class="synopsis-wrapper">
 <h6 class="text-info fw-bold small text-uppercase mb-2">Sinopsis</h6>
@@ -283,7 +283,7 @@ renderEpisodes();
             document.getElementById('m_year').value = ex(/<b>Tahun<\/b> <span class="val">(.*?)<\/span>/);
             document.getElementById('m_country').value = ex(/<b>Negara<\/b> <span class="val">(.*?)<\/span>/);
             document.getElementById('m_genre').value = ex(/<b>Genre<\/b> <span class="val">(.*?)<\/span>/);
-            document.getElementById('m_cast').value = ex(/<b>Pemeran<\/b> <span class="val">(.*?)<\/span>/);
+            document.getElementById('m_director').value = ex(/<b>Sutradara<\/b> <span class="val">(.*?)<\/span>/);
             document.getElementById('m_synopsis').value = ex(/<p class="text-dim small".*?>(.*?)<\/p>/);
             document.getElementById('episodeContainer').innerHTML = ''; epCount = 0;
             eps.forEach(e => addEpisode(e));
